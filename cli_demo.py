@@ -3,7 +3,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-"""A simple command-line interactive chat demo."""
+"""A simple command-line interactive chat demo for Farhan AI."""
 
 import argparse
 import os
@@ -18,17 +18,20 @@ from transformers.trainer_utils import set_seed
 
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-7B-Chat'
 
+# Branding changed to Farhan AI
 _WELCOME_MSG = '''\
-Welcome to use Qwen-Chat model, type text to start chat, type :h to show command help.
-(欢迎使用 Qwen-Chat 模型，输入内容即可进行对话，:h 显示命令帮助。)
+================================================================================
+Welcome to Farhan AI - Your Premium Video & Image Creation Assistant!
+Type text to start chat, type :h to show command help.
+================================================================================
 
-Note: This demo is governed by the original license of Qwen.
-We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, including hate speech, violence, pornography, deception, etc.
-(注：本演示受Qwen的许可协议限制。我们强烈建议，用户不应传播及不应允许他人传播以下内容，包括但不限于仇恨言论、暴力、色情、欺诈相关的有害信息。)
+Note: This demo is powered by Farhan AI core. 
+We strongly advise users not to knowingly generate harmful content, including hate speech, violence, pornography, deception, etc.
 '''
+
 _HELP_MSG = '''\
 Commands:
-    :help / :h          Show this help message              显示帮助信息
+    :help / :h          Show this help message             显示帮助信息
     :exit / :quit / :q  Exit the demo                       退出Demo
     :clear / :cl        Clear screen                        清屏
     :clear-his / :clh   Clear history                       清除对话历史
@@ -36,8 +39,8 @@ Commands:
     :seed               Show current random seed            显示当前随机种子
     :seed <N>           Set random seed to <N>              设置随机种子
     :conf               Show current generation config      显示生成配置
-    :conf <key>=<value> Change generation config            修改生成配置
-    :reset-conf         Reset generation config             重置生成配置
+    :conf <key>=<value> Change generation config             修改生成配置
+    :reset-conf         Reset generation config              重置生成配置
 '''
 
 
@@ -84,7 +87,7 @@ def _print_history(history):
     print(f'History ({len(history)})'.center(terminal_width, '='))
     for index, (query, response) in enumerate(history):
         print(f'User[{index}]: {query}')
-        print(f'QWen[{index}]: {response}')
+        print(f'Farhan AI[{index}]: {response}')  # Name changed here
     print('=' * terminal_width)
 
 
@@ -104,7 +107,7 @@ def _get_input() -> str:
 
 def main():
     parser = argparse.ArgumentParser(
-        description='QWen-Chat command-line interactive chat demo.')
+        description='Farhan AI command-line interactive chat demo.')
     parser.add_argument("-c", "--checkpoint-path", type=str, default=DEFAULT_CKPT_PATH,
                         help="Checkpoint name or path, default to %(default)r")
     parser.add_argument("-s", "--seed", type=int, default=1234, help="Random seed")
@@ -192,13 +195,17 @@ def main():
                 # As normal query.
                 pass
 
+        # Injecting Custom System Prompt so the model introduces itself as Farhan AI
+        system_prompt = "You are Farhan AI, an expert AI assistant that helps users create video scripts, image prompts, and ideas. Always introduce yourself as Farhan AI if asked."
+        full_query = f"<|im_start|>system\n{system_prompt}<|im_end|>\n{query}"
+
         # Run chat.
         set_seed(seed)
         try:
-            for response in model.chat_stream(tokenizer, query, history=history, generation_config=config):
+            for response in model.chat_stream(tokenizer, full_query, history=history, generation_config=config):
                 _clear_screen()
                 print(f"\nUser: {query}")
-                print(f"\nQwen-Chat: {response}")
+                print(f"\nFarhan AI: {response}") # Name changed here
         except KeyboardInterrupt:
             print('[WARNING] Generation interrupted')
             continue
