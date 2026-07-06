@@ -3,7 +3,7 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-"""A simple web interactive chat demo based on gradio."""
+"""A simple web interactive chat demo based on gradio for Farhan AI."""
 import os
 from argparse import ArgumentParser
 
@@ -119,9 +119,15 @@ def _launch_demo(args, model, tokenizer, config):
     def predict(_query, _chatbot, _task_history):
         print(f"User: {_parse_text(_query)}")
         _chatbot.append((_parse_text(_query), ""))
+        
+        # Injected Farhan AI Brain/System Identity
+        system_prompt = "You are Farhan AI, an expert AI assistant specialized in creating video scripts, content creation strategies, and image prompts. Always identify yourself as Farhan AI."
+        custom_query = f"<|im_start| strain>\n{system_prompt}<|im_end|>\n{_query}"
+        
         full_response = ""
 
-        for response in model.chat_stream(tokenizer, _query, history=_task_history, generation_config=config):
+        # Using custom_query instead of raw _query to enforce personality
+        for response in model.chat_stream(tokenizer, custom_query, history=_task_history, generation_config=config):
             _chatbot[-1] = (_parse_text(_query), _parse_text(response))
 
             yield _chatbot
@@ -129,7 +135,7 @@ def _launch_demo(args, model, tokenizer, config):
 
         print(f"History: {_task_history}")
         _task_history.append((_query, full_response))
-        print(f"Qwen-Chat: {_parse_text(full_response)}")
+        print(f"Farhan AI: {_parse_text(full_response)}")
 
     def regenerate(_chatbot, _task_history):
         if not _task_history:
@@ -148,34 +154,31 @@ def _launch_demo(args, model, tokenizer, config):
         _gc()
         return _chatbot
 
-    with gr.Blocks() as demo:
+    # Custom Styling for Farhan AI Web Interface
+    with gr.Blocks(title="Farhan AI Portal") as demo:
+        # Aap apna logo image path yahan replace kar sakte hain (e.g., logo_farhan.jpg)
         gr.Markdown("""\
-<p align="center"><img src="https://qianwen-res.oss-cn-beijing.aliyuncs.com/logo_qwen.jpg" style="height: 80px"/><p>""")
-        gr.Markdown("""<center><font size=8>Qwen-Chat Bot</center>""")
+<p align="center"><img src="[https://placehold.co/400x100/2b2d42/ffffff?text=FARHAN+AI](https://placehold.co/400x100/2b2d42/ffffff?text=FARHAN+AI)" style="height: 80px; border-radius: 8px;"/><p>""")
+        gr.Markdown("""<center><font size=8 weight="bold">Farhan AI Ecosystem</center>""")
         gr.Markdown(
             """\
-<center><font size=3>This WebUI is based on Qwen-Chat, developed by Alibaba Cloud. \
-(本WebUI基于Qwen-Chat打造，实现聊天机器人功能。)</center>""")
+<center><font size=3>Your Next-Gen Video, Image, and Text Generation Engine. \
+(خوش آمدید! یہاں آپ اسکرپٹ اور امیج پرامپٹس بنا سکتے ہیں۔)</center>""")
+        
+        # Removed Chinese links and Alibaba source traces
         gr.Markdown("""\
 <center><font size=4>
-Qwen-7B <a href="https://modelscope.cn/models/qwen/Qwen-7B/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-7B">🤗</a>&nbsp ｜ 
-Qwen-7B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-7B-Chat/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-7B-Chat">🤗</a>&nbsp ｜ 
-Qwen-14B <a href="https://modelscope.cn/models/qwen/Qwen-14B/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-14B">🤗</a>&nbsp ｜ 
-Qwen-14B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-14B-Chat/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-14B-Chat">🤗</a>&nbsp ｜ 
-&nbsp<a href="https://github.com/QwenLM/Qwen">Github</a></center>""")
+⚡ Powered by Farhan AI Core Engine v1.0 | 🌐 Web Application Framework
+</center>""")
 
-        chatbot = gr.Chatbot(label='Qwen-Chat', elem_classes="control-height")
-        query = gr.Textbox(lines=2, label='Input')
+        chatbot = gr.Chatbot(label='Farhan AI Dashboard', elem_classes="control-height")
+        query = gr.Textbox(lines=2, label='Ask Farhan AI anything...')
         task_history = gr.State([])
 
         with gr.Row():
-            empty_btn = gr.Button("🧹 Clear History (清除历史)")
-            submit_btn = gr.Button("🚀 Submit (发送)")
-            regen_btn = gr.Button("🤔️ Regenerate (重试)")
+            empty_btn = gr.Button("🧹 Clear Chat (صاف کریں)")
+            submit_btn = gr.Button("🚀 Generate (ارسال کریں)")
+            regen_btn = gr.Button("🤔️ Re-Generate (دوبارہ کوشش)")
 
         submit_btn.click(predict, [query, chatbot, task_history], [chatbot], show_progress=True)
         submit_btn.click(reset_user_input, [], [query])
@@ -183,11 +186,7 @@ Qwen-14B-Chat <a href="https://modelscope.cn/models/qwen/Qwen-14B-Chat/summary">
         regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
 
         gr.Markdown("""\
-<font size=2>Note: This demo is governed by the original license of Qwen. \
-We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, \
-including hate speech, violence, pornography, deception, etc. \
-(注：本演示受Qwen的许可协议限制。我们强烈建议，用户不应传播及不应允许他人传播以下内容，\
-包括但不限于仇恨言论、暴力、色情、欺诈相关的有害信息。)""")
+<font size=2><strong>Note:</strong> Safe usage is strongly recommended. Do not utilize Farhan AI for creating harmful, illegal, or deceptive content. All activities are subject to platform terms and conditions.""")
 
     demo.queue().launch(
         share=args.share,
